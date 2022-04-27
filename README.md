@@ -6,7 +6,7 @@ gemcGas6 is a ambient air quality analyse system used by the Guangzhou Environme
 
 3. Air quality analyse.
 
-More Functions is on devepment.
+More Functions is on development.
 
 ...
 
