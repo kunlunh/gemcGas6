@@ -119,7 +119,6 @@ namespace gemcGas.Controllers
             }
             else
             {
-                //var name = "";
                 List<useritem> result = new List<useritem>();
                 using (var connection = new SqliteConnection("Data Source=z_source.db"))
                 {
