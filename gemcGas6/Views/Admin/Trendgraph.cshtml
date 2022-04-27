@@ -1,0 +1,270 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="table-responsive">
+    <form>
+        <div class="row">
+            <div class="form-group col-md-2">
+                <label for="siteform">请输入站点</label>
+                <select id="siteform" class="form-control">
+                    <script>
+                        var siteList_1 = generateArray(1, 52);
+                        var siteList_2 = generateArray(1001, 1014);
+                        var siteList_3 = generateArray(4401, 4402);
+                        var siteList = siteList_1.concat(siteList_2).concat(siteList_3)
+                        for (var site of siteList) {
+                            if (site == 4401)
+                                document.write("<option value=" + site + " selected>" + translatesite(parseInt(site)) + "</option>");
+                            else
+                                document.write("<option value=" + site + ">" + translatesite(parseInt(site)) + "</option>");
+                        }
+                    </script>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="inputStartDay">开始日期</label>
+                <select id="inputStartDay" class="form-control">
+                    <script>
+                        var NowDate = new Date();
+                        var StartDate = new Date();
+                        var EndDate = new Date();
+                        StartDate.setUTCFullYear(2012);
+                        StartDate.setMonth(0);
+                        EndDate.setUTCFullYear(2020);
+                        EndDate.setMonth(12);
+                        var Month, year;
+                        for (var d = StartDate; d < EndDate; d.setMonth(d.getMonth() + 1)) {
+                            Month = d.getMonth();
+                            year = d.getFullYear();
+                            var formatedMonth = ("0" + (d.getMonth() + 1)).slice(-2);
+                            if (NowDate.getMonth() == Month && d.getFullYear() == 2019)
+                                document.write("<option value=" + year + formatedMonth + " selected>" + year + "年" + ((Month + 1) < 10 ? "0" + (Month + 1) : (Month + 1)) + "月</option>");
+                            else
+                                document.write("<option value=" + year + formatedMonth + ">" + year + "年" + ((Month + 1) < 10 ? "0" + (Month + 1) : (Month + 1)) + "月</option>");
+                        }
+                    </script>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="inputEndDay">结束日期</label>
+                <select id="inputEndDay" class="form-control">
+                    <script>
+                        var NowDate = new Date();
+                        var StartDate = new Date();
+                        var EndDate = new Date();
+                        StartDate.setUTCFullYear(2012);
+                        StartDate.setMonth(0);
+                        EndDate.setUTCFullYear(2020);
+                        EndDate.setMonth(12);
+                        var Month, year;
+                        for (var d = StartDate; d < EndDate; d.setMonth(d.getMonth() + 1)) {
+                            Month = d.getMonth();
+                            year = d.getFullYear();
+                            var formatedMonth = ("0" + (d.getMonth() + 1)).slice(-2);
+                            if (NowDate.getMonth() == Month && d.getFullYear() == 2020)
+                                document.write("<option value=" + year + formatedMonth + " selected>" + year + "年" + ((Month + 1) < 10 ? "0" + (Month + 1) : (Month + 1)) + "月</option>");
+                            else
+                                document.write("<option value=" + year + formatedMonth + ">" + year + "年" + ((Month + 1) < 10 ? "0" + (Month + 1) : (Month + 1)) + "月</option>");
+                        }
+                    </script>
+                </select>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary form-group col-md-2" id="getdaysdatabtn">获取数据</button>
+        <button type="button" class="btn btn-default form-group col-md-2">控制</button>
+
+    </form>
+
+    <div id="AQItrend" style="width: 800px;height:400px;"></div>
+    <div id="O3trend" style="width: 800px;height:400px;"></div>
+    <div id="NO2trend" style="width: 800px;height:400px;"></div>
+    <div id="PM25trend" style="width: 800px;height:400px;"></div>
+
+</div>
+
+@section Scripts{
+    <script src="/static/scripts/trendgraph.js"></script>
+    <script src="/static/scripts/echarts.min.js"></script>
+
+    <script>
+        var AQIChart = echarts.init(document.getElementById('AQItrend'));
+        var O3Chart = echarts.init(document.getElementById('O3trend'));
+        var NO2Chart = echarts.init(document.getElementById('NO2trend'));
+        var PM25Chart = echarts.init(document.getElementById('PM25trend'));
+        AQIChart.setOption({
+            title: { text: 'AQI指数趋势' },
+            tooltip: {},
+            backgroundColor: '#e2f3ee',
+            legend: { data: ['AQI'] },
+            xAxis: { data: [] },
+            yAxis: {},
+            series: [{
+                name: 'AQI',
+                type: 'bar',
+                data: [],
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            if (params.value >= 0 && params.value <= 50) {
+                                return "rgb(0, 228, 0)"; //绿
+                            } else if (params.value > 50 && params.value <= 100) {
+                                return "rgb(255, 255, 0)"; //黄
+                            } else if (params.value > 100 && params.value <= 150) {
+                                return "rgb(255, 126, 0)"; //橙
+                            } else if (params.value > 150 && params.value <= 200) {
+                                return "rgb(255, 0, 0)"; //红
+                            } else if (params.value > 200 && params.value <= 300) {
+                                return "rgb(153, 0, 76)"; //紫
+                            }
+                            return "rgb(125, 0, 35)"; //褐红
+                        }
+                    }
+                }
+            }]
+        });
+
+        O3Chart.setOption({
+            title: { text: 'O3指数趋势' },
+            tooltip: {},
+            backgroundColor: '#e2f3ee',
+            legend: { data: ['O3'] },
+            xAxis: { data: [] },
+            yAxis: {},
+            series: [{
+                name: 'O3',
+                type: 'bar',
+                data: [],
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            if (params.value >= 0 && params.value <= 100) {
+                                return "rgb(0, 228, 0)"; //绿
+                            } else if (params.value > 100 && params.value <= 160) {
+                                return "rgb(255, 255, 0)"; //黄
+                            } else if (params.value > 160 && params.value <= 215) {
+                                return "rgb(255, 126, 0)"; //橙
+                            } else if (params.value > 215 && params.value <= 265) {
+                                return "rgb(255, 0, 0)"; //红
+                            } else if (params.value > 265 && params.value <= 800) {
+                                return "rgb(153, 0, 76)"; //紫
+                            }
+                            return "rgb(125, 0, 35)"; //褐红
+                        }
+                    }
+                }
+            }]
+        });
+
+        NO2Chart.setOption({
+            title: { text: 'NO2指数趋势' },
+            tooltip: {},
+            backgroundColor: '#e2f3ee',
+            legend: { data: ['NO2'] },
+            xAxis: { data: [] },
+            yAxis: {},
+            series: [{
+                name: 'NO2',
+                type: 'bar',
+                data: [],
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            if (params.value >= 0 && params.value <= 40) {
+                                return "rgb(0, 228, 0)"; //绿
+                            } else if (params.value > 40 && params.value <= 80) {
+                                return "rgb(255, 255, 0)"; //黄
+                            } else if (params.value > 80 && params.value <= 180) {
+                                return "rgb(255, 126, 0)"; //橙
+                            } else if (params.value > 180 && params.value <= 280) {
+                                return "rgb(255, 0, 0)"; //红
+                            } else if (params.value > 280 && params.value <= 565) {
+                                return "rgb(153, 0, 76)"; //紫
+                            }
+                            return "rgb(125, 0, 35)"; //褐红
+                        }
+                    }
+                }
+            }]
+        });
+
+        PM25Chart.setOption({
+            title: { text: 'PM2.5指数趋势' },
+            tooltip: {},
+            backgroundColor: '#e2f3ee',
+            legend: { data: ['PM2.5'] },
+            xAxis: { data: [] },
+            yAxis: {},
+            series: [{
+                name: 'PM2.5',
+                type: 'bar',
+                data: [],
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            if (params.value >= 0 && params.value <= 35) {
+                                return "rgb(0, 228, 0)"; //绿
+                            } else if (params.value > 35 && params.value <= 75) {
+                                return "rgb(255, 255, 0)"; //黄
+                            } else if (params.value > 75 && params.value <= 115) {
+                                return "rgb(255, 126, 0)"; //橙
+                            } else if (params.value > 115 && params.value <= 150) {
+                                return "rgb(255, 0, 0)"; //红
+                            } else if (params.value > 150 && params.value <= 250) {
+                                return "rgb(153, 0, 76)"; //紫
+                            }
+                            return "rgb(125, 0, 35)"; //褐红
+                        }
+                    }
+                }
+            }]
+        });
+
+        $("#getdaysdatabtn").click(function () {
+            $.post("/action/get_trenddata",
+                {
+                    site: $("#siteform").val(),
+                    daystart: $("#inputStartDay").val(),
+                    dayend: $("#inputEndDay").val()
+
+                },
+                function (data) {
+                    var i = 0, len = data.length;
+                    // 指定图表的配置项和数据
+                    var AQIoption = { xAxis: { data: [] }, series: [{ data: [] }] };
+                    var O3option = { xAxis: { data: [] }, series: [{ data: [] }] };
+                    var NO2option = { xAxis: { data: [] }, series: [{ data: [] }] };
+                    var PM25option = { xAxis: { data: [] }, series: [{ data: [] }] };
+
+                    for (; i < len; i++) {
+                        AQIoption.xAxis.data.push(data[i].Day);
+                        AQIoption.series[0].data.push(data[i].AQI)
+                        O3option.xAxis.data.push(data[i].Day);
+                        O3option.series[0].data.push(data[i].O3)
+                        NO2option.xAxis.data.push(data[i].Day);
+                        NO2option.series[0].data.push(data[i].NO2)
+                        PM25option.xAxis.data.push(data[i].Day);
+                        PM25option.series[0].data.push(data[i].PM25)
+                    }
+                    // 使用刚指定的配置项和数据显示图表。
+                    AQIChart.setOption(AQIoption);
+                    O3Chart.setOption(O3option);
+                    NO2Chart.setOption(NO2option);
+                    PM25Chart.setOption(PM25option)
+                });
+        });
+
+        chartColors = {
+            red: 'rgb(255, 99, 132)',
+            orange: 'rgb(255, 159, 64)',
+            yellow: 'rgb(255, 205, 86)',
+            green: 'rgb(75, 192, 192)',
+            blue: 'rgb(54, 162, 235)',
+            purple: 'rgb(153, 102, 255)',
+            grey: 'rgb(201, 203, 207)'
+        };
+
+    </script>
+}

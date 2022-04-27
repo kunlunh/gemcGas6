@@ -1,0 +1,38 @@
+﻿@{
+    Layout = "~/Views/Shared/_IndexLayout.cshtml";
+    ViewData["Title"] = "Home Page";
+    
+}
+
+<div class="jumbotron">
+    <h1>GEMC大气数据分析</h1>
+    <p class="lead">系统建设中...</p>
+    <h2>The time on the server is @ViewData["timenow"]</h2>
+    <p><a href="/" class="btn btn-primary btn-large">About more &raquo;</a></p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>系统功能(1)--趋势图</h2>
+        <p>
+            历史数据趋势图.
+        </p>
+        <p><a class="btn btn-default" href="/trendgraph">趋势图 &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>系统功能(2)--排名</h2>
+        <p>改善排名.</p>
+        <p><a class="btn btn-default" href="#">排名 &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>系统功能(3)--历史数据分析</h2>
+        <p>各项空气指标的历史数据.</p>
+        <p><a class="btn btn-default" href="/yearavg">历史数据分析 &raquo;</a></p>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+     console.log("test log");
+    </script>
+}

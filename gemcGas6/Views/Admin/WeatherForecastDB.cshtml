@@ -1,0 +1,87 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="table-responsive">
+    <p>
+        <div class="form-group col-md-2">
+            <label for="siteform">请输入站点</label>
+            <select id="siteform" class="form-control">
+                <script>
+                    var siteList_1 = generateArray(1, 52);
+                    var siteList_2 = generateArray(1001, 1014);
+                    var siteList_3 = generateArray(4401, 4402);
+                    var siteList = siteList_1.concat(siteList_2).concat(siteList_3)
+                    //console.log(siteList);
+                    for (var site of siteList) {
+                        //console.log(site);
+                        if (site == 4401)
+                            document.write("<option value=" + site + " selected>" + translatesite(parseInt(site)) + "</option>");
+                        else
+                            document.write("<option value=" + site + ">" + translatesite(parseInt(site)) + "</option>");
+                    }
+                </script>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="getforecastdatabtn">获取数据</button>
+        <button type="button" class="btn btn-default">控制</button>
+    </p>
+    <table class="table table-striped table-sm" id="forecastdataTable">
+        <thead>
+            <tr>
+                <th>区域</th>
+                <th>预报时次</th>
+                <th>最低温度</th>
+                <th>最高温度</th>
+                <th>最小相对湿度</th>
+                <th>最大相对湿度</th>
+                <th>雨量</th>
+                <th>前12小时天气现象描述</th>
+                <th>前12小时风速</th>
+                <th>前12小时风向</th>
+                <th>后12小时天气现象描述</th>
+                <th>后12小时风速</th>
+                <th>后12小时风向</th> 
+                <th>发布时间</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+@section Scripts{
+    <script>
+        $("#getforecastdatabtn").click(function () {
+            //dogetdaydata();
+            $.post("/action/get_dbforecastdata",
+                {
+                    site: $("#siteform").val()
+                },
+                function (data) {
+                    $("#forecastdataTable  tr:not(:first)").html("");
+                    for (var i = 0; i < data.length; i++) {
+                        var index = i + 1;
+                        $("#forecastdataTable").append(
+                            "<tr><td>"
+                            + data[i].AREA + "</td><td>"
+                            + data[i].FTIME + "</td><td>"
+                            + data[i].MINT + "</td><td>"
+                            + data[i].MAXT + "</td><td>"
+                            + data[i].MINRH2M + "</td><td>"
+                            + data[i].MAXRH2M + "</td><td>"
+                            + data[i].RAIN + "</td><td>"
+                            + data[i].F12WEATHER + "</td><td>"
+                            + data[i].F12WINDS + "</td><td>"
+                            + data[i].F12WINDD + "</td><td>"
+                            + data[i].L12WEATHER + "</td><td>"
+                            + data[i].L12WINDS + "</td><td>"
+                            + data[i].L12WINDD + "</td><td>"                                                   
+                            + data[i].RTIME + "</td><td>"
+                        );
+                    }
+                });
+        });
+
+    </script>
+}

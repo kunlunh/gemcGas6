@@ -1,0 +1,161 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+<div class="table-responsive">
+    <form>
+        <div class="row">
+            <div class="form-group col-md-2">
+                <label for="inputDayCount">结束日期</label>
+                <select id="inputDayCount" class="form-control">
+                    <option value="30" selected>最近30天</option>
+                    <option value="45">最近45天</option>
+                </select>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary form-group col-md-2" id="getaqiheatmapdatabtn">获取数据</button>
+        <button type="button" class="btn btn-default form-group col-md-2">控制</button>
+
+    </form>
+
+    <div id="heatmap" style="height: 600px"></div>
+
+</div>
+
+@section Scripts{
+    <script src="/static/scripts/trendgraph.js"></script>
+    <script src="/static/scripts/echarts.min.js"></script>
+
+    <script>
+        var dom = document.getElementById("heatmap");
+        var heatmapChart = echarts.init(dom);
+        var app = {};
+
+        var option;
+
+        var hours = ['12a', '1a', '2a', '3a', '4a', '5a', '6a',
+            '7a', '8a', '9a', '10a', '11a',
+            '12p', '1p', '2p', '3p', '4p', '5p',
+            '6p', '7p', '8p', '9p', '10p', '11p'];
+
+        var sites_code = [9, 8, 10, 7, 4, 1, 6, 2, 5, 3, 4401];
+
+        var sites = sites_code.map(function (item) {
+            return translatesite(item);
+        });
+
+
+        option = {
+            backgroundColor: '#e2f3ee',
+            tooltip: {
+                position: 'top'
+            },
+            grid: {
+                height: '50%',
+                top: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: hours,
+                splitArea: {
+                    show: true
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: sites,
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 10,
+                type: 'piecewise',
+                orient: 'horizontal',
+                left: 'center',
+                top: 20,
+                bottom: '15%',
+                pieces: [
+                    { gt: 0, lte: 50, label: "优", color: "rgb(0, 228, 0)" },
+                    { gt: 50, lte: 100, label: "良", color: "rgb(255, 255, 0)" },
+                    { gt: 100, lte: 150, label: "轻度污染", color: "rgb(255, 126, 0)" },
+                    { gt: 150, lte: 200, label: "中度污染", color: "rgb(255, 0, 0)" },
+                    { gt: 200, lte: 300, label: "重度污染", color: "rgb(153, 0, 76)" },
+                    { gt: 300, label: "严重污染", color: "rgb(125, 0, 35)" },
+                    { value: "null", label: "无数据", color: "rgb(229,229,229)" }
+                ]
+            },
+            series: [{
+                name: 'AQI',
+                type: 'heatmap',
+                data: [],
+                label: {
+                    show: true
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
+        };
+
+        if (option && typeof option === 'object') {
+            heatmapChart.setOption(option);
+        }
+
+        $("#getaqiheatmapdatabtn").click(function () {
+            $.post("/action/get_aqiheatmapdata",
+                {
+                    dayCount: $("#inputDayCount").val()
+
+                },
+                function (data) {
+
+                    var days;
+
+                    var m = 0, daylen = data[0].AQI.length;
+                    var i = 0, datalen = data.length;
+
+
+                    // 指定图表的配置项和数据
+                    var heatmapoption = { xAxis: { data: [] }, series: [{ data: [] }] };
+
+                    for (i = daylen - 1; i >= 0; i--) {
+                        //heatmapoption.xAxis.data.push(data[i].Day);
+                        var xAxisdata = (data[0].AQI[i][1]).toString().substr(6, 8);
+                        heatmapoption.xAxis.data.push(xAxisdata)
+
+                    }
+
+                    for (x = 0; x < datalen; x++) {
+                        for (y = daylen - 1; y >= 0; y--) {
+                            var aqidata = [[daylen - 1 - y], [x], [data[x].AQI[y][0]]];
+                            console.log(aqidata);
+                            heatmapoption.series[0].data.push(aqidata)
+
+                        }
+                    }
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    heatmapChart.setOption(heatmapoption)
+                });
+        });
+
+        chartColors = {
+            red: 'rgb(255, 99, 132)',
+            orange: 'rgb(255, 159, 64)',
+            yellow: 'rgb(255, 205, 86)',
+            green: 'rgb(75, 192, 192)',
+            blue: 'rgb(54, 162, 235)',
+            purple: 'rgb(153, 102, 255)',
+            grey: 'rgb(201, 203, 207)'
+        };
+
+    </script>
+}
