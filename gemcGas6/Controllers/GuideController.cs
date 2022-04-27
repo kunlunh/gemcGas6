@@ -105,7 +105,7 @@ namespace gemcGas.Controllers
         {
             var result = new test
             {
-                message = "good"
+                message = "good Sync test"
             };
             return result;
         }
