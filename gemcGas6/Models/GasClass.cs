@@ -8,6 +8,7 @@ namespace gemcGas.Models
     public class GasStandard
     {
         public static int SO2_level2_year = 60;
+        //GB
         public static int NO2_level2_year = 40;
         public static int CO_level2_day = 4;
         public static int O3_level2_day = 160;
