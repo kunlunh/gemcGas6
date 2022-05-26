@@ -12,6 +12,7 @@ using gemcGas.Common;
 using System.Net;
 using System.Xml;
 using Microsoft.Extensions.Options;
+using Npgsql;
 
 namespace gemcGas.Controllers
 {
@@ -325,37 +326,41 @@ namespace gemcGas.Controllers
                     List<WeatherForcastbyCMA> result_all = new List<WeatherForcastbyCMA>();
                     string jsontext = string.Empty;
                     List<WeatherForcastbyCMA> weatherForecast = new List<WeatherForcastbyCMA>();
+                    string PGSQLconnectURL = appoptions.PGSQLconnectURL;
 
-
-                    using (var connection = new SqliteConnection("Data Source=WeatherForestDB.db"))
+                    using (var connection = new NpgsqlConnection(PGSQLconnectURL))
                     {
                         connection.Open();
-                        var command = connection.CreateCommand();
-                        command.CommandText = @"select * from WeatherForcastfromLatest_VIEW";
-                        using (var reader = command.ExecuteReader())
+                        using (var cmd = new NpgsqlCommand("select * from public.WeatherForcastfromLatest_VIEW", connection))
                         {
-                            while (reader.Read())
+                            using (var reader = cmd.ExecuteReader())
                             {
-                                if (reader.GetString(0) == "广州市") {
-                                    WeatherForcastbyCMA byforcast = new WeatherForcastbyCMA();
-                                    byforcast.AREA = reader.GetString(0);
-                                    byforcast.FTIME = reader.GetInt32(1);
-                                    byforcast.MINT = reader.GetInt32(2);
-                                    byforcast.MAXT = reader.GetInt32(3);
-                                    byforcast.MINRH2M = reader.GetString(4);
-                                    byforcast.MAXRH2M = reader.GetString(5);
-                                    byforcast.RAIN = reader.GetInt32(6);
-                                    byforcast.F12WEATHER = reader.GetString(7);
-                                    byforcast.F12WINDD = reader.GetString(8);
-                                    byforcast.F12WINDS = reader.GetString(9);
-                                    byforcast.L12WEATHER = reader.GetString(10);
-                                    byforcast.L12WINDD = reader.GetString(11);
-                                    byforcast.L12WINDS = reader.GetString(12);
-                                    byforcast.RTIME = reader.GetString(13);
-                                    result_all.Add(byforcast);
+                                while (reader.Read())
+                                {
+                                    if (reader.GetString(0) == "广州市")
+                                    {
+                                        WeatherForcastbyCMA byforcast = new WeatherForcastbyCMA();
+                                        byforcast.AREA = reader.GetString(0);
+                                        byforcast.FTIME = reader.GetInt32(1);
+                                        byforcast.MINT = reader.GetInt32(2);
+                                        byforcast.MAXT = reader.GetInt32(3);
+                                        byforcast.MINRH2M = reader.GetString(4);
+                                        byforcast.MAXRH2M = reader.GetString(5);
+                                        byforcast.RAIN = reader.GetInt32(6);
+                                        byforcast.F12WEATHER = reader.GetString(7);
+                                        byforcast.F12WINDD = reader.GetString(8);
+                                        byforcast.F12WINDS = reader.GetString(9);
+                                        byforcast.L12WEATHER = reader.GetString(10);
+                                        byforcast.L12WINDD = reader.GetString(11);
+                                        byforcast.L12WINDS = reader.GetString(12);
+                                        byforcast.RTIME = reader.GetString(13);
+                                        result_all.Add(byforcast);
+                                    }
+
                                 }
-                                
+
                             }
+                                
                         }
                         connection.Close();
                     }
