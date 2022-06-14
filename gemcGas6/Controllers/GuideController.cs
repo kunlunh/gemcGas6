@@ -39,7 +39,7 @@ namespace gemcGas.Controllers
                 var versioninfo = System.Environment.MachineName.ToString();
                 return new ContentResult
                 {
-                    Content = "Hi there! From Guide ☺\n"+csharpversion+"@"+systemversion+" on "+versioninfo+" authed",
+                    Content = "Hi there! From Guide ☺\n" + csharpversion + "@" + systemversion + " on " + versioninfo + " authed",
                     ContentType = "text/plain; charset=utf-8"
                 };
             }
