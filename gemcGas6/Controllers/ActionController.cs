@@ -322,6 +322,7 @@ namespace gemcGas.Controllers
             {
                 if (request.site != null)
                 {
+                    string site = request.site;
                     DateTime startt = DateTime.Now;
                     List<WeatherForcastbyCMA> result_all = new List<WeatherForcastbyCMA>();
                     string jsontext = string.Empty;
@@ -337,8 +338,9 @@ namespace gemcGas.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    if (reader.GetString(0) == "广州市")
+                                    if (reader.GetString(0) == site)
                                     {
+                                        Console.WriteLine(reader.GetString(0));
                                         WeatherForcastbyCMA byforcast = new WeatherForcastbyCMA();
                                         byforcast.AREA = reader.GetString(0);
                                         byforcast.FTIME = reader.GetInt32(1);
@@ -397,6 +399,8 @@ namespace gemcGas.Controllers
             {
                 if (request.site != null)
                 {
+                    string site = request.site;
+                    Console.WriteLine(site);
                     DateTime startt = DateTime.Now;
                     List<WeatherForcastbyCMA> result_all = new List<WeatherForcastbyCMA>();
                     string jsontext = string.Empty;
@@ -422,8 +426,9 @@ namespace gemcGas.Controllers
                     }
                     weatherForecast = JsonSerializer.Deserialize<List<WeatherForcastbyCMA>>(jsontext);
                     foreach (WeatherForcastbyCMA byforcast in weatherForecast) {
-                        if(byforcast.AREA== "广州市")
+                        if(byforcast.AREA == site)
                         {
+                            Console.WriteLine(site);
                             result_all.Add(byforcast);
                         }
                         
