@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
-using Microsoft.Data;
 using gemcGas.Models;
+using MySqlConnector;
 
 namespace gemcGas.Controllers
 {
@@ -15,7 +14,7 @@ namespace gemcGas.Controllers
         {
             var uid = id;
             var name = "test: no get PARAMETERS input";
-            using (var connection = new SqliteConnection("Data Source=z_source.db"))
+            using (var connection = new MySqlConnection("Data Source=z_source.db"))
             {
                 connection.Open();
 
@@ -48,7 +47,7 @@ namespace gemcGas.Controllers
         {
             var uid = postitem.id;
             var name = "test: no POST PARAMETERS input";
-            using (var connection = new SqliteConnection("Data Source=z_source.db"))
+            using (var connection = new MySqlConnection("Data Source=z_source.db"))
             {
                 connection.Open();
 
@@ -87,7 +86,7 @@ namespace gemcGas.Controllers
         {
             var uid = id;
             var name = "againtest: no get PARAMETERS input";
-            using (var connection = new SqliteConnection("Data Source=z_source.db"))
+            using (var connection = new MySqlConnection("Data Source=z_source.db"))
             {
                 connection.Open();
 

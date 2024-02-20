@@ -1,0 +1,137 @@
+﻿@model List<AQITable>
+
+@{
+    ViewBag.Title = "2024年2月广州市与国控点AQI日历图";
+    var now = DateTime.Now;
+    //var daysInMonth = now.Day != 1 ? DateTime.DaysInMonth(now.Year, now.Month) : DateTime.DaysInMonth(now.AddMonths(-1).Year, now.AddMonths(-1).Month);
+    var daysInMonth = now.Day != 1 ? now.AddDays(-1).Day : DateTime.DaysInMonth(now.AddMonths(-1).Year, now.AddMonths(-1).Month);
+}
+
+<style>
+    .compact-table {
+        font-size: 12px; /* Adjust font size as needed */
+    }
+        .compact-table th,
+        .compact-table td {
+            padding: 4px; /* Adjust padding to make cells smaller */
+            text-align: center; /* Center-align the text in the cells */
+        }
+
+        .compact-table th {
+            background-color: #f2f2f2; /* Light background for the header */
+            border-bottom: 1px solid #ddd; /* Add a bottom border to header */
+        }
+
+        .compact-table td {
+            border: 1px solid #ddd; /* Add borders to cells */
+        }
+</style>
+<p>
+    <button type="button" class="btn btn-primary" id="toggleRows" onclick="toggleVisibility()">切换国控点/发布点</button>
+</p>
+
+<div class="table-responsive">
+
+    <table class="table compact-table" id="aqiTable">
+
+        <tr>
+            <th></th>
+            @for (int day = 1; day <= daysInMonth; day++)
+            {
+                <th>@day</th>
+            }
+        </tr>
+        @foreach (var row in Model)
+        {
+            <tr class="aqi-row" data-position="@row.PositionName">
+                <td>@row.PositionName</td>
+                @for (int day = 1; day <= daysInMonth; day++)
+                {
+                    int? aqiValue = null;
+                    if (row.DailyAQI.ContainsKey(day))
+                    {
+                        aqiValue = row.DailyAQI[day];
+                    }
+                    <td class="aqi-value">@aqiValue</td>
+                }
+            </tr>
+        }
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        const selectedPositions = [
+            "01# 荔湾西村",
+            "02# 海珠宝岗",
+            "03# 公园前",
+            "04# 天河体育西",
+            "05# 越秀麓湖",
+            "06# 海珠赤沙",
+            "07# 黄埔大沙地",
+            "08# 番禺市桥",
+            "09# 花都新华",
+            "10# 黄埔镇龙",
+            "11# 从化良口",
+            "12# 从化街口",
+            "13# 花都梯面",
+            "14# 白云竹料",
+            "15# 白云嘉禾",
+            "16# 增城荔城",
+            "17# 黄埔科学城",
+            "18# 番禺大学城",
+            "19# 南沙黄阁",
+            "20# 南沙街"
+        ];
+        let showAllRows = false;
+
+        window.onload = function () {
+            filterRows();
+        };
+
+        function toggleVisibility() {
+            showAllRows = !showAllRows; // Toggle the state
+            filterRows(); // Filter the rows based on the new state
+            //document.getElementById('toggleRows').textContent = '切换发布点' ? '切换国控点' : '切换发布点';
+        }
+
+        function filterRows() {
+            const rows = document.querySelectorAll('.aqi-row');
+            rows.forEach(row => {
+                const positionName = row.getAttribute('data-position');
+                if (showAllRows || selectedPositions.includes(positionName)) {
+                    row.style.display = ''; // Show the row
+                } else {
+                    row.style.display = 'none'; // Hide the row
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var aqiCells = document.querySelectorAll('.aqi-value');
+
+            aqiCells.forEach(function (cell) {
+                var value = parseInt(cell.textContent, 10);
+
+                if (!isNaN(value)) {
+                    if (value > 0 && value <= 50) {
+                        cell.style.backgroundColor = "rgb(0, 228, 0)";
+                    } else if (value > 50 && value <= 100) {
+                        cell.style.backgroundColor = "rgb(255, 255, 0)";
+                    } else if (value > 100 && value <= 150) {
+                        cell.style.backgroundColor = "rgb(255, 126, 0)";
+                    } else if (value > 150 && value <= 200) {
+                        cell.style.backgroundColor = "rgb(255, 0, 0)";
+                    } else if (value > 200 && value <= 300) {
+                        cell.style.backgroundColor = "rgb(153, 0, 76)";
+                    } else if (value > 300) {
+                        cell.style.backgroundColor = "rgb(125, 0, 35)";
+                    }
+                } else {
+                    // If the value is not a number, assume no data
+                    cell.style.backgroundColor = "rgb(229,229,229)";
+                }
+            });
+        });
+    </script>
+}

@@ -11,11 +11,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using gemcGas.Models;
-using Microsoft.Data.Sqlite;
 using System.Text.Json;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Options;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 
 namespace gemcGas.Controllers
@@ -122,7 +121,7 @@ namespace gemcGas.Controllers
             else
             {
                 List<useritem> result = new List<useritem>();
-                using (var connection = new SqliteConnection("Data Source=z_source.db"))
+                using (var connection = new MySqlConnection("Data Source=z_source.db"))
                 {
                     connection.Open();
 

@@ -17,6 +17,67 @@ namespace gemcGas.Models
 
     }
 
+    public class StationList
+    {
+        //public string postionitem { get; set; }
+        public static List<string> positionList = new List<string> {
+           "01# 荔湾西村",
+            "02# 海珠宝岗",
+            "03# 公园前",
+            "04# 天河体育西",
+            "05# 越秀麓湖",
+            "06# 海珠赤沙",
+            "07# 黄埔大沙地",
+            "08# 番禺市桥",
+            "09# 花都新华",
+            "10# 黄埔镇龙",
+            "11# 从化良口",
+            "12# 从化街口",
+            "13# 花都梯面",
+            "14# 白云竹料",
+            "15# 白云嘉禾",
+            "16# 增城荔城",
+            "17# 黄埔科学城",
+            "18# 番禺大学城",
+            "19# 南沙黄阁",
+            "20# 南沙街",
+            "21# 帽峰山",
+            "22# 花都花东",
+            "23# 花都赤坭",
+            "24# 增城派潭",
+            "25# 增城中新",
+            "26# 增城石滩",
+            "27# 增城新塘",
+            "28# 白云江高",
+            "29# 白云石井",
+            "30# 白云新市",
+            "31# 白云山",
+            "32# 黄埔永和",
+            "33# 黄埔西区",
+            "34# 黄埔文冲",
+            "35# 凤凰山",
+            "36# 天河龙洞",
+            "37# 天河五山",
+            "38# 天河奥体",
+            "39# 荔湾芳村",
+            "40# 海珠沙园",
+            "41# 海珠湖",
+            "42# 番禺大石",
+            "43# 番禺南村",
+            "44# 番禺亚运城",
+            "45# 番禺大夫山",
+            "46# 番禺沙湾",
+            "47# 南沙榄核",
+            "48# 南沙沙螺湾",
+            "49# 南沙蒲州",
+            "50# 南沙新垦",
+            "51# 杨箕路边站",
+            "52# 黄沙路边站"
+        };
+    }
+
+
+
     public class commandMSG
     {
         public string message { get; set; }
@@ -96,4 +157,17 @@ namespace gemcGas.Models
     {
         public string site { get; set; }
     }
+
+    public class Aqicalresult
+    {
+        public string PositionName { get; set; }
+        public string Date { get; set; }
+        public string? result_AQI { get; set; }
+    }
+    public class AQITable
+    {
+        public string PositionName { get; set; }
+        public Dictionary<int, int?> DailyAQI { get; set; }
+    }
+
 }

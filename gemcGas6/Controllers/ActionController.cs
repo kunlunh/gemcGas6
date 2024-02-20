@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Session;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
-using Microsoft.Data.Sqlite;
 using gemcGas.Models;
 using gemcGas.Common;
 using System.Net;
 using System.Xml;
 using Microsoft.Extensions.Options;
 using Npgsql;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System.Security.Policy;
 
 namespace gemcGas.Controllers
@@ -33,7 +32,7 @@ namespace gemcGas.Controllers
             if (user.username != null)
             {
                 var userfind = new useritem();
-                using (var connection = new SqliteConnection("Data Source=z_source.db"))
+                using (var connection = new MySqlConnection("Data Source=z_source.db"))
                 {
                     connection.Open();
 
@@ -98,7 +97,7 @@ namespace gemcGas.Controllers
                 {
                     List<aqiheatmapreuslt> result_all = new List<aqiheatmapreuslt> ();
                     int[] check_sites = { 9, 8, 10, 7, 4, 1, 6, 2, 5, 3, 4401 };
-                    using (var connection = new SqliteConnection("Data Source=Gas2020.db"))
+                    using (var connection = new MySqlConnection("Data Source=Gas2020.db"))
                     {
                         connection.Open();
                         foreach (int SameSiteMode in check_sites) {
@@ -154,7 +153,7 @@ namespace gemcGas.Controllers
                     string daystart = request.daystart + "01";
                     string dayend = request.dayend + "31";
                     string site = request.site;
-                    using (var connection = new SqliteConnection("Data Source=Gas2020.db"))
+                    using (var connection = new MySqlConnection("Data Source=Gas2020.db"))
                     {
                         connection.Open();
                         var command = connection.CreateCommand();
@@ -216,7 +215,7 @@ namespace gemcGas.Controllers
                     DateTime dayend = DateTime.ParseExact(end, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
                     IEnumerable<string> month_list = CommonFunctions.DateRange(daystart, dayend);                                  
                       
-                    using (var connection = new SqliteConnection("Data Source=Gas2020.db"))
+                    using (var connection = new MySqlConnection("Data Source=Gas2020.db"))
                     {
                         connection.Open();
                         foreach (string month in month_list)
@@ -232,12 +231,12 @@ namespace gemcGas.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    dayavgdata_result.result_NO2 = reader.IsDBNull(0) ? (double?)null : Math.Round(reader.GetDouble(0),2);
-                                    dayavgdata_result.result_SO2 = reader.IsDBNull(1) ? (double?)null : Math.Round(reader.GetDouble(1),2);
-                                    dayavgdata_result.result_O3 = reader.IsDBNull(2) ? (double?)null : Math.Round(reader.GetDouble(2),2);
-                                    dayavgdata_result.result_PM25 = reader.IsDBNull(3) ? (double?)null : Math.Round(reader.GetDouble(3),2);
-                                    dayavgdata_result.result_PM10 = reader.IsDBNull(4) ? (double?)null : Math.Round(reader.GetDouble(4),2);
-                                    dayavgdata_result.result_CO = reader.IsDBNull(5) ? (double?)null : Math.Round(reader.GetDouble(5),2);
+                                    dayavgdata_result.result_NO2 = reader.IsDBNull(0) ? (double?)null : reader.GetInt32(0);
+                                    dayavgdata_result.result_SO2 = reader.IsDBNull(1) ? (double?)null : reader.GetInt32(1);
+                                    dayavgdata_result.result_O3 = reader.IsDBNull(2) ? (double?)null : reader.GetInt32(2);
+                                    dayavgdata_result.result_PM25 = reader.IsDBNull(3) ? (double?)null : reader.GetInt32(3);
+                                    dayavgdata_result.result_PM10 = reader.IsDBNull(4) ? (double?)null : reader.GetInt32(4);
+                                    dayavgdata_result.result_CO = reader.IsDBNull(5) ? (double?)null : reader.GetInt32(5);
                                 }
                             }
                             var o3_90_sql = connection.CreateCommand();
@@ -248,7 +247,7 @@ namespace gemcGas.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    dayavgdata_result.result_O3_90 = reader.IsDBNull(0) ? (double?)null : Math.Round(reader.GetDouble(0),2);
+                                    dayavgdata_result.result_O3_90 = reader.IsDBNull(0) ? (double?)null : reader.GetInt32(0);
                                 }
                             }
                             
@@ -260,7 +259,7 @@ namespace gemcGas.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    dayavgdata_result.result_CO_95 = reader.IsDBNull(0) ? (double?)null : Math.Round(reader.GetDouble(0),2);
+                                    dayavgdata_result.result_CO_95 = reader.IsDBNull(0) ? (double?)null : reader.GetInt32(0);
                                 }
                             }
                             
@@ -284,7 +283,7 @@ namespace gemcGas.Controllers
                             {
                                 while (reader.Read())
                                 {
-                                    double Success_days = reader.GetDouble(0);
+                                    double Success_days = reader.GetInt32(0);
                                     dayavgdata_result.success_days_rate = Math.Round((Success_days/dayavgdata_result.passday) ,4);
                                 }
                             }
@@ -347,21 +346,19 @@ namespace gemcGas.Controllers
                                 dayavgdataresult dayavgdata_result = new dayavgdataresult();
                                 dayavgdata_result.PositionName = reader.GetString(4);
                                 dayavgdata_result.Date = reader.GetDateTime(3).ToString("yyyy/MM/dd");
-                                dayavgdata_result.result_SO2 = reader.IsDBNull(5) ? null : reader.GetDouble(5).ToString();
-                                dayavgdata_result.result_PM25 = reader.IsDBNull(6) ? null : reader.GetDouble(6).ToString(); 
-                                dayavgdata_result.result_PM10 = reader.IsDBNull(7) ? null : reader.GetDouble(7).ToString();
-                                dayavgdata_result.result_O3 = reader.IsDBNull(8) ? null : reader.GetDouble(8).ToString();
-                                dayavgdata_result.result_NO2 = reader.IsDBNull(9) ? null : reader.GetDouble(9).ToString();
-                                dayavgdata_result.result_CO = reader.IsDBNull(10) ? null : reader.GetDouble(10).ToString("0.0");
-                                dayavgdata_result.result_AQI = reader.IsDBNull(11) ? null : reader.GetDouble(11).ToString();
+                                dayavgdata_result.result_SO2 = reader.IsDBNull(5) ? null : reader.GetFloat(5).ToString();
+                                dayavgdata_result.result_PM25 = reader.IsDBNull(6) ? null : reader.GetFloat(6).ToString(); 
+                                dayavgdata_result.result_PM10 = reader.IsDBNull(7) ? null : reader.GetFloat(7).ToString();
+                                dayavgdata_result.result_O3 = reader.IsDBNull(8) ? null : reader.GetFloat(8).ToString();
+                                dayavgdata_result.result_NO2 = reader.IsDBNull(9) ? null : reader.GetFloat(9).ToString();
+                                dayavgdata_result.result_CO = reader.IsDBNull(10) ? null : reader.GetFloat(10).ToString("0.0");
+                                dayavgdata_result.result_AQI = reader.IsDBNull(11) ? null : reader.GetInt32(11).ToString();
                                 dayavgdata_result.result_PrimaryPollutant = reader.IsDBNull(12) ? null : reader.GetString(12);
                                 dayavgdata_result.result_Level = reader.IsDBNull(13) ? null : reader.GetString(13);
                                 result_all.Add(dayavgdata_result);
                             }
                             
                         }
-
-
 
                         connection.Close();
 
