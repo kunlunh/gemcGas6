@@ -54,6 +54,12 @@ namespace gemcGas.Models
         public string site { get; set; }
     }
 
+    public class dayavgdatarequest
+    {
+        public string position { get; set; }
+        public string month { get; set; }
+    }
+
     public class monthavgdataresult
     {
         public double? gas_general_index { get; set; }
@@ -69,6 +75,21 @@ namespace gemcGas.Models
         public string result_endday { get; set; }
         public double? success_days_rate { get; set; }
         public double passday { get; set; }
+    }
+
+    public class dayavgdataresult
+    {
+        public string PositionName { get; set; }
+        public string Date { get; set; }
+        public string? result_CO { get; set; }
+        public string? result_NO2 { get; set; }
+        public string? result_O3 { get; set; }
+        public string? result_PM10 { get; set; }
+        public string? result_PM25 { get; set; }
+        public string? result_SO2 { get; set; }
+        public string? result_AQI { get; set; }
+        public string? result_PrimaryPollutant { get; set; }
+        public string? result_Level { get; set; }
     }
 
     public class WeatherForecastdatarequest

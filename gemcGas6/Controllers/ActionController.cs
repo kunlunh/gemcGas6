@@ -13,6 +13,8 @@ using System.Net;
 using System.Xml;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using MySql.Data.MySqlClient;
+using System.Security.Policy;
 
 namespace gemcGas.Controllers
 {
@@ -294,6 +296,78 @@ namespace gemcGas.Controllers
                     }
                     string json = JsonSerializer.Serialize(result_all);
                     Console.WriteLine(json);
+                    DateTime endt = DateTime.Now;
+                    TimeSpan passt = endt - startt;
+                    Console.WriteLine($"{passt.Seconds}s+{passt.Milliseconds}ms");
+                    return Json(result_all);
+                }
+                else
+                {
+                    var result = new commandMSG
+                    {
+                        message = "No Input"
+                    };
+                    return Json(new { result });
+                }
+
+            }
+
+        }
+        [HttpPost]
+        public IActionResult get_dayavgdata(dayavgdatarequest request)
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                if (request.position != null)
+                {
+                    DateTime startt = DateTime.Now;
+                    string MySQLconnectURL = appoptions.MySQLconnectURL;
+                    string position = request.position;
+                    string month = request.month;
+                    Console.WriteLine(position+"|"+month);
+                    List<dayavgdataresult> result_all = new List<dayavgdataresult>();
+
+                    using (var connection = new MySqlConnection(MySQLconnectURL))
+                    {
+                        connection.Open();
+                        var command = connection.CreateCommand();
+                        command.CommandText = @"select * from my_aqi_day where DATE_FORMAT(Date, '%Y%m') = @month AND PositionName = @position";
+                        command.Parameters.AddWithValue("@month", month);
+                        command.Parameters.AddWithValue("@position", position);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            
+                            while (reader.Read())
+                            {
+                                dayavgdataresult dayavgdata_result = new dayavgdataresult();
+                                dayavgdata_result.PositionName = reader.GetString(4);
+                                dayavgdata_result.Date = reader.GetDateTime(3).ToString("yyyy/MM/dd");
+                                dayavgdata_result.result_SO2 = reader.IsDBNull(5) ? null : reader.GetDouble(5).ToString();
+                                dayavgdata_result.result_PM25 = reader.IsDBNull(6) ? null : reader.GetDouble(6).ToString(); 
+                                dayavgdata_result.result_PM10 = reader.IsDBNull(7) ? null : reader.GetDouble(7).ToString();
+                                dayavgdata_result.result_O3 = reader.IsDBNull(8) ? null : reader.GetDouble(8).ToString();
+                                dayavgdata_result.result_NO2 = reader.IsDBNull(9) ? null : reader.GetDouble(9).ToString();
+                                dayavgdata_result.result_CO = reader.IsDBNull(10) ? null : reader.GetDouble(10).ToString("0.0");
+                                dayavgdata_result.result_AQI = reader.IsDBNull(11) ? null : reader.GetDouble(11).ToString();
+                                dayavgdata_result.result_PrimaryPollutant = reader.IsDBNull(12) ? null : reader.GetString(12);
+                                dayavgdata_result.result_Level = reader.IsDBNull(13) ? null : reader.GetString(13);
+                                result_all.Add(dayavgdata_result);
+                            }
+                            
+                        }
+
+
+
+                        connection.Close();
+
+                    }
+                    string jsonReuslt = JsonSerializer.Serialize(result_all);
+                    Console.WriteLine(jsonReuslt);
                     DateTime endt = DateTime.Now;
                     TimeSpan passt = endt - startt;
                     Console.WriteLine($"{passt.Seconds}s+{passt.Milliseconds}ms");

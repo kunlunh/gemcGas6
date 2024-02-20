@@ -15,6 +15,8 @@ using Microsoft.Data.Sqlite;
 using System.Text.Json;
 using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Options;
+using MySql.Data.MySqlClient;
+
 
 namespace gemcGas.Controllers
 {
@@ -171,34 +173,34 @@ namespace gemcGas.Controllers
         
         public IActionResult Sqltest()
         {
-            var uid = 1;
+            string MySQLconnectURL = appoptions.MySQLconnectURL;
+            //string MySQLconnectURL2 = "server=10.10.3.235;user=hjf12;password='admin@203';database=gaqi";
             var name = "";
             var timenow = DateTime.Now;
-            using (var connection = new SqliteConnection("Data Source=z_source.db"))
+            using (var connection = new MySqlConnection(MySQLconnectURL))
             {
                 connection.Open();
 
                 var command = connection.CreateCommand();
                 command.CommandText =
                     @"
-                        SELECT username
-                        FROM userinfo
-                        WHERE uid = $uid
+                        SELECT *
+                        FROM my_aqi_day
+                        LIMIT 10
                     ";
-                command.Parameters.AddWithValue("$uid", uid);
 
                 using (var reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        name = reader.GetString(0);
+                        name = reader.GetString(4);
                     }
                 }
                 connection.Close();
             }
             return new Microsoft.AspNetCore.Mvc.ContentResult
             {
-                Content = "Hi there! From Guide Index ☺" + name + "\nServer Time: "+ timenow,
+                Content = name,
                 ContentType = "text/plain; charset=utf-8"
             };
         }

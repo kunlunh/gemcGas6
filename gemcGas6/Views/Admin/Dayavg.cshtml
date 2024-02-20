@@ -1,0 +1,190 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="table-responsive">
+    <p>
+        <div class="form-group col-md-2">
+            <label for="siteform">请输入站点</label>
+            <div id="positionlistselect"></div>
+            <div id="monthListcontainer"></div>
+            
+        </div>
+        <button type="button" class="btn btn-primary" id="getdayavgdatabtn">获取数据</button>
+        <button type="button" class="btn btn-default">控制</button>
+    </p>
+    <table class="table table-striped table-sm" id="dayavgdataTable">
+        <thead>
+            <tr>
+                <th>测点</th>
+                <th>日期</th>
+                <th>PM<sub>2.5</sub></th>
+                <th>PM<sub>10</sub></th>
+                <th>NO<sub>2</sub></th>
+                <th>SO<sub>2</sub></th>
+                <th>O<sub>3</sub></th>
+                <th>CO</th>
+                <th>空气质量</th>
+                <th>首要污染物</th>
+                <th>AQI</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+
+@section Scripts{
+    <script>
+        $("#getdayavgdatabtn").click(function () {
+            //dogetdaydata();
+            $.post("/action/get_dayavgdata",
+                {
+                    position: $("#positionNames").val(),
+                    month: $("#monthList").val()
+                },
+                function (data) {
+                    $("#dayavgdataTable  tr:not(:first)").html("");
+                    for (var i = 0; i < data.length; i++) {
+                        var index = i + 1;
+                        $("#dayavgdataTable").append(
+                            "<tr><td>"
+                            + data[i].PositionName + "</td><td>"
+                            + data[i].Date + "</td><td>"
+                            + data[i].result_PM25 + "</td><td>"
+                            + data[i].result_PM10 + "</td><td>"
+                            + data[i].result_NO2 + "</td><td>"
+                            + data[i].result_SO2 + "</td><td>"
+                            + data[i].result_O3 + "</td><td>"
+                            + data[i].result_CO + "</td><td>"
+                            + data[i].result_Level + "</td><td>"
+                            + convertToSubscript(data[i].result_PrimaryPollutant) + "</td><td>"
+                            + data[i].result_AQI + "</td><td>"
+                        );
+                    }
+                });
+        });
+
+        const positionNames = [
+            "01# 荔湾西村",
+            "02# 海珠宝岗",
+            "03# 公园前",
+            "04# 天河体育西",
+            "05# 越秀麓湖",
+            "06# 海珠赤沙",
+            "07# 黄埔大沙地",
+            "08# 番禺市桥",
+            "09# 花都新华",
+            "10# 黄埔镇龙",
+            "11# 从化良口",
+            "12# 从化街口",
+            "13# 花都梯面",
+            "14# 白云竹料",
+            "15# 白云嘉禾",
+            "16# 增城荔城",
+            "17# 黄埔科学城",
+            "18# 番禺大学城",
+            "19# 南沙黄阁",
+            "20# 南沙街",
+            "21# 帽峰山",
+            "22# 花都花东",
+            "23# 花都赤坭",
+            "24# 增城派潭",
+            "25# 增城中新",
+            "26# 增城石滩",
+            "27# 增城新塘",
+            "28# 白云江高",
+            "29# 白云石井",
+            "30# 白云新市",
+            "31# 白云山",
+            "32# 黄埔永和",
+            "33# 黄埔西区",
+            "34# 黄埔文冲",
+            "35# 凤凰山",
+            "36# 天河龙洞",
+            "37# 天河五山",
+            "38# 天河奥体",
+            "39# 荔湾芳村",
+            "40# 海珠沙园",
+            "41# 海珠湖",
+            "42# 番禺大石",
+            "43# 番禺南村",
+            "44# 番禺亚运城",
+            "45# 番禺大夫山",
+            "46# 番禺沙湾",
+            "47# 南沙榄核",
+            "48# 南沙沙螺湾",
+            "49# 南沙蒲州",
+            "50# 南沙新垦",
+            "51# 杨箕路边站",
+            "52# 黄沙路边站",
+        ];
+        function generateSelectList(positions) {
+            let selectHTML = '<select name="positionNames" id="positionNames">\n';
+            for (const positionName of positions) {
+                selectHTML += `  <option value="${positionName}">${positionName}</option>\n`;
+            }
+            selectHTML += '</select>';
+            return selectHTML;
+        }
+
+        const selectPositionListHTML = generateSelectList(positionNames);
+
+        document.getElementById('positionlistselect').innerHTML = selectPositionListHTML;
+
+        function generateMonthOptionsHTML(startYear, startMonth, endYear, endMonth) {
+            let optionsHTML = '';
+            let currentYear = endYear;
+            let currentMonth = endMonth;
+
+            while (currentYear > startYear || (currentYear === startYear && currentMonth >= startMonth)) {
+                let formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth;
+                let monthValue = `${currentYear}${formattedMonth}`;
+                optionsHTML += `<option value="${monthValue}">${currentYear}-${formattedMonth}</option>\n`;
+                currentMonth--;
+                if (currentMonth < 1) {
+                    currentYear--;
+                    currentMonth = 12;
+                }
+            }
+
+            return optionsHTML;
+        }
+        // Usage:
+        // Start month and year
+        const startYear = 2020;
+        const startMonth = 12;
+        // Current month and year
+        const currentYear = new Date().getFullYear();
+        const currentMonth = new Date().getMonth() + 1; // getMonth is zero-based, so add 1
+
+        const monthOptionsHTML = generateMonthOptionsHTML(startYear, startMonth, currentYear, currentMonth);
+
+        // Now you can insert this into your HTML select element
+        const monthselectHTML = `<select name="monthList" id="monthList">\n${monthOptionsHTML}</select>`;
+
+        // To insert the HTML into a page, you could use JavaScript like this:
+        document.getElementById('monthListcontainer').innerHTML = monthselectHTML;
+
+
+        function convertToSubscript(text) {
+            // Define a regular expression to match the patterns
+            const subscriptPatterns = {
+                'PM2.5': 'PM<sub>2.5</sub>',
+                'PM2_5': 'PM<sub>2.5</sub>',
+                'PM10': 'PM<sub>10</sub>',
+                'NO2': 'NO<sub>2</sub>',
+                'SO2': 'SO<sub>2</sub>',
+                'O3': 'O<sub>3</sub>'
+            };
+
+            // Replace each pattern with its subscript version
+            Object.keys(subscriptPatterns).forEach((pattern) => {
+                text = text.replace(new RegExp(pattern, 'g'), subscriptPatterns[pattern]);
+            });
+
+            return text;
+        }
+
+    </script>
+}

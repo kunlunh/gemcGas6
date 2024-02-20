@@ -10,5 +10,7 @@
         public string WX_app_secret { get; set; } = string.Empty;
         public string WX_app_id { get; set; } = string.Empty;
         public string PGSQLconnectURL { get; set; } = string.Empty;
+
+        public string MySQLconnectURL { get; set; } = string.Empty;
     }
 }

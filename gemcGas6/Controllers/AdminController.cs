@@ -66,6 +66,19 @@ namespace gemcGas.Controllers
             }
         }
 
+        public IActionResult Dayavg()
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                ViewData["Title"] = "日均值";
+                return View();
+            }
+        }
+
         public IActionResult Monthavg()
         {
             if (HttpContext.Session.GetInt32("authed") != 1)
