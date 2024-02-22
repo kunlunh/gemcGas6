@@ -184,7 +184,7 @@ namespace gemcGas.Controllers
                 command.CommandText =
                     @"
                         SELECT *
-                        FROM my_aqi_day
+                        FROM my_station_day
                         LIMIT 10
                     ";
 

@@ -61,6 +61,30 @@ namespace gemcGas.Controllers
                 return View();
             }
         }
+        public IActionResult Davgdata()
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                ViewData["Title"] = "国控点日均值";
+                return View();
+            }
+        }
+        public IActionResult Hourdata()
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                ViewData["Title"] = "小时";
+                return View();
+            }
+        }
         public IActionResult Aqical()
         {
             if (HttpContext.Session.GetInt32("authed") != 1)
@@ -77,14 +101,14 @@ namespace gemcGas.Controllers
                     connection.Open();
                     var command = connection.CreateCommand();
                     if (DateTime.Now.Day == 1) {
-                        command.CommandText = @"SELECT PositionName, Date, AQI FROM my_aqi_day 
+                        command.CommandText = @"SELECT PositionName, Date, AQI FROM my_station_day 
                                             WHERE DATE_FORMAT(Date, '%Y%m') = @month 
                                             and PositionName Like '%#%'Order by PositionName ASC";
                         string month = DateTime.Now.AddMonths(-1).ToString("yyyyMM");
                         command.Parameters.AddWithValue("@month", month);
                     }  else
                     {
-                        command.CommandText = @"SELECT PositionName, Date, AQI FROM my_aqi_day 
+                        command.CommandText = @"SELECT PositionName, Date, AQI FROM my_station_day 
                                             WHERE DATE_FORMAT(Date, '%Y%m') = @month 
                                             and PositionName Like '%#%'Order by PositionName ASC";
                         string month = DateTime.Now.ToString("yyyyMM");

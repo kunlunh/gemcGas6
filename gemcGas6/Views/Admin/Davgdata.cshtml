@@ -27,7 +27,6 @@
                 <th>CO</th>
                 <th>空气质量</th>
                 <th>首要污染物</th>
-                <th>超标污染物</th>
                 <th>AQI</th>
             </tr>
         </thead>
@@ -60,7 +59,6 @@
                             + data[i].result_CO + "</td><td>"
                             + data[i].result_Level + "</td><td>"
                             + convertToSubscript(data[i].result_PrimaryPollutant) + "</td><td>"
-                            + convertToSubscript(data[i].result_OverPollutant) + "</td><td>"
                             + data[i].result_AQI + "</td><td>"
                         );
                     }
@@ -170,11 +168,8 @@
 
 
         function convertToSubscript(text) {
-            if (text == null) {
-                return "";
-            }
             // Define a regular expression to match the patterns
-            const subscriptPatterns = { 
+            const subscriptPatterns = {
                 'PM2.5': 'PM<sub>2.5</sub>',
                 'PM2_5': 'PM<sub>2.5</sub>',
                 'PM10': 'PM<sub>10</sub>',

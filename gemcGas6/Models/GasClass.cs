@@ -150,8 +150,27 @@ namespace gemcGas.Models
         public string? result_SO2 { get; set; }
         public string? result_AQI { get; set; }
         public string? result_PrimaryPollutant { get; set; }
+        public string? result_OverPollutant { get; set; }
         public string? result_Level { get; set; }
     }
+    public class hourdatarequest
+    {
+        public string position { get; set; }
+        public string date { get; set; }
+    }
+    public class hourdataresult
+    {
+        public string PositionName { get; set; }
+        public string Date { get; set; }
+        public string Hour { get; set; }
+        public string? result_CO { get; set; }
+        public string? result_NO2 { get; set; }
+        public string? result_O3 { get; set; }
+        public string? result_PM10 { get; set; }
+        public string? result_PM25 { get; set; }
+        public string? result_SO2 { get; set; }
+    }
+
 
     public class WeatherForecastdatarequest
     {

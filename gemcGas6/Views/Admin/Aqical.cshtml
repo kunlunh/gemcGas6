@@ -28,6 +28,8 @@
 </style>
 <p>
     <button type="button" class="btn btn-primary" id="toggleRows" onclick="toggleVisibility()">切换国控点/发布点</button>
+    <button id="sortButton">切换显示顺序</button>
+
 </p>
 
 <div class="table-responsive">
@@ -131,6 +133,33 @@
                     // If the value is not a number, assume no data
                     cell.style.backgroundColor = "rgb(229,229,229)";
                 }
+            });
+        });
+
+        document.getElementById('sortButton').addEventListener('click', function () {
+            // Define the fixed row order
+            var sortOrder = ['03# 公园前', '05# 越秀麓湖', '02# 海珠宝岗', '06# 海珠赤沙', '01# 荔湾西村',
+                '04# 天河体育西', '15# 白云嘉禾', '14# 白云竹料', '07# 黄埔大沙地', '10# 黄埔镇龙',
+                '17# 黄埔科学城', '09# 花都新华', '13# 花都梯面', '08# 番禺市桥', '18# 番禺大学城',
+                '19# 南沙黄阁', '20# 南沙街', '12# 从化街口', '11# 从化良口', '16# 增城荔城'
+            ];
+
+            // Get the table element
+            var table = document.getElementById('aqiTable');
+
+            // Get the rows as an array
+            var rows = Array.from(table.getElementsByClassName('aqi-row'));
+
+            // Sort the rows based on the sortOrder array
+            rows.sort(function (a, b) {
+                var positionA = a.getAttribute('data-position');
+                var positionB = b.getAttribute('data-position');
+                return sortOrder.indexOf(positionA) - sortOrder.indexOf(positionB);
+            });
+
+            // Reattach the sorted rows to the table
+            rows.forEach(function (row) {
+                table.appendChild(row);
             });
         });
     </script>

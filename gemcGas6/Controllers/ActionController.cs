@@ -14,6 +14,8 @@ using Microsoft.Extensions.Options;
 using Npgsql;
 using MySqlConnector;
 using System.Security.Policy;
+using static System.Net.Mime.MediaTypeNames;
+using System.Globalization;
 
 namespace gemcGas.Controllers
 {
@@ -334,7 +336,8 @@ namespace gemcGas.Controllers
                     {
                         connection.Open();
                         var command = connection.CreateCommand();
-                        command.CommandText = @"select * from my_aqi_day where DATE_FORMAT(Date, '%Y%m') = @month AND PositionName = @position";
+                        command.CommandText = @"select PositionName, Date, SO2, PM2_5, PM10, O3_8h, NO2, CO, AQI, PrimaryPollutant, OverPollutant, Level 
+                                                from my_station_day where DATE_FORMAT(Date, '%Y%m') = @month AND PositionName = @position order by Date DESC";
                         command.Parameters.AddWithValue("@month", month);
                         command.Parameters.AddWithValue("@position", position);
 
@@ -344,17 +347,18 @@ namespace gemcGas.Controllers
                             while (reader.Read())
                             {
                                 dayavgdataresult dayavgdata_result = new dayavgdataresult();
-                                dayavgdata_result.PositionName = reader.GetString(4);
-                                dayavgdata_result.Date = reader.GetDateTime(3).ToString("yyyy/MM/dd");
-                                dayavgdata_result.result_SO2 = reader.IsDBNull(5) ? null : reader.GetFloat(5).ToString();
-                                dayavgdata_result.result_PM25 = reader.IsDBNull(6) ? null : reader.GetFloat(6).ToString(); 
-                                dayavgdata_result.result_PM10 = reader.IsDBNull(7) ? null : reader.GetFloat(7).ToString();
-                                dayavgdata_result.result_O3 = reader.IsDBNull(8) ? null : reader.GetFloat(8).ToString();
-                                dayavgdata_result.result_NO2 = reader.IsDBNull(9) ? null : reader.GetFloat(9).ToString();
-                                dayavgdata_result.result_CO = reader.IsDBNull(10) ? null : reader.GetFloat(10).ToString("0.0");
-                                dayavgdata_result.result_AQI = reader.IsDBNull(11) ? null : reader.GetInt32(11).ToString();
-                                dayavgdata_result.result_PrimaryPollutant = reader.IsDBNull(12) ? null : reader.GetString(12);
-                                dayavgdata_result.result_Level = reader.IsDBNull(13) ? null : reader.GetString(13);
+                                dayavgdata_result.PositionName = reader.GetString(0);
+                                dayavgdata_result.Date = reader.GetDateTime(1).ToString("yyyy/MM/dd");
+                                dayavgdata_result.result_SO2 = reader.IsDBNull(2) ? null : reader.GetFloat(2).ToString();
+                                dayavgdata_result.result_PM25 = reader.IsDBNull(3) ? null : reader.GetFloat(3).ToString(); 
+                                dayavgdata_result.result_PM10 = reader.IsDBNull(4) ? null : reader.GetFloat(4).ToString();
+                                dayavgdata_result.result_O3 = reader.IsDBNull(5) ? null : reader.GetFloat(5).ToString();
+                                dayavgdata_result.result_NO2 = reader.IsDBNull(6) ? null : reader.GetFloat(6).ToString();
+                                dayavgdata_result.result_CO = reader.IsDBNull(7) ? null : reader.GetFloat(7).ToString("0.0");
+                                dayavgdata_result.result_AQI = reader.IsDBNull(8) ? null : reader.GetInt32(8).ToString();
+                                dayavgdata_result.result_PrimaryPollutant = reader.IsDBNull(9) ? null : reader.GetString(9);
+                                dayavgdata_result.result_OverPollutant = reader.IsDBNull(10) ? null : reader.GetString(10);
+                                dayavgdata_result.result_Level = reader.IsDBNull(11) ? null : reader.GetString(11);
                                 result_all.Add(dayavgdata_result);
                             }
                             
@@ -369,6 +373,117 @@ namespace gemcGas.Controllers
                     TimeSpan passt = endt - startt;
                     Console.WriteLine($"{passt.Seconds}s+{passt.Milliseconds}ms");
                     return Json(result_all);
+                }
+                else
+                {
+                    var result = new commandMSG
+                    {
+                        message = "No Input"
+                    };
+                    return Json(new { result });
+                }
+
+            }
+
+        }
+        [HttpPost]
+        public IActionResult get_hourdata(hourdatarequest request)
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                if (request.position != null)
+                {
+                    DateTime startt = DateTime.Now;
+                    string MySQLconnectURL = appoptions.MySQLconnectURL;
+                    string position = request.position;
+                    string positionCode = string.Empty;
+                    using (var connection = new MySqlConnection(MySQLconnectURL))
+                    {
+                        connection.Open();
+                        var command = connection.CreateCommand();
+                        command.CommandText = @"select positionName, stationcode from station where PositionName = @position";
+                        command.Parameters.AddWithValue("@position", position);
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                positionCode = reader.GetString(1);
+                            }
+                        }
+                        connection.Close();
+                    }
+
+                    string date = request.date; //The day given Such 20240220
+                    DateTime parsedDate;
+
+                    if (DateTime.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    {
+                        // Generate start time as "2024-02-20 01:00:00"
+                        string starttime = parsedDate.AddHours(1).ToString("yyyy-MM-dd HH:mm:ss");
+
+                        // Generate end time as "2024-02-21 00:00:00"
+                        string endtime = parsedDate.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss");
+
+                        Console.WriteLine(positionCode + "|" + starttime + "|" + endtime);
+                        List<hourdataresult> result_all = new List<hourdataresult>();
+
+                        using (var connection = new MySqlConnection(MySQLconnectURL))
+                        {
+                            connection.Open();
+                            var command = connection.CreateCommand();
+                            command.CommandText = @"select Area, Date, SO2, PM2_5, PM10, O3, NO2, CO 
+                            from getstationshour where DATE BETWEEN @starttime AND @endtime and stationcode = @position
+                            order by Date ASC";
+                            command.Parameters.AddWithValue("@starttime", starttime);
+                            command.Parameters.AddWithValue("@endtime", endtime);
+                            command.Parameters.AddWithValue("@position", positionCode);
+
+                            using (var reader = command.ExecuteReader())
+                            {
+
+                                while (reader.Read())
+                                {
+                                    hourdataresult hourdata_result = new hourdataresult();
+                                    hourdata_result.PositionName = position;
+                                    hourdata_result.Date = reader.GetDateTime(1).ToString("yyyy/MM/dd");
+                                    hourdata_result.Hour = reader.GetDateTime(1).ToString("HH");
+                                    hourdata_result.result_SO2 = reader.IsDBNull(2) ? null : reader.GetFloat(2).ToString();
+                                    hourdata_result.result_PM25 = reader.IsDBNull(3) ? null : reader.GetFloat(3).ToString();
+                                    hourdata_result.result_PM10 = reader.IsDBNull(4) ? null : reader.GetFloat(4).ToString();
+                                    hourdata_result.result_O3 = reader.IsDBNull(5) ? null : reader.GetFloat(5).ToString();
+                                    hourdata_result.result_NO2 = reader.IsDBNull(6) ? null : reader.GetFloat(6).ToString();
+                                    hourdata_result.result_CO = reader.IsDBNull(7) ? null : reader.GetFloat(7).ToString("0.0");
+                                    result_all.Add(hourdata_result);
+                                }
+
+                            }
+
+                            connection.Close();
+
+                        }
+                        string jsonReuslt = JsonSerializer.Serialize(result_all);
+                        Console.WriteLine(jsonReuslt);
+                        DateTime endt = DateTime.Now;
+                        TimeSpan passt = endt - startt;
+                        Console.WriteLine($"{passt.Seconds}s+{passt.Milliseconds}ms");
+                        return Json(result_all);
+                    }
+                    else
+                    {
+                        // Handle the case where the date is not in the expected format
+                        Console.WriteLine("Invalid date format.");
+                        var result = new commandMSG
+                        {
+                            message = "Invalid date format."
+                        };
+                        return Json(new { result });
+                    }
+                    
+                    
                 }
                 else
                 {
