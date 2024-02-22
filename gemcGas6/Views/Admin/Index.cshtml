@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
-    
+    var systemversion = System.Environment.OSVersion.ToString();
+    var csharpversion = System.Environment.Version.ToString();
+    var versioninfo = System.Environment.MachineName.ToString();
 }
 
 <div class="text-center">
@@ -8,7 +10,7 @@
     <h2>The time on the server is @ViewData["timenow"]</h2>
     <h2>欢迎访问本系统。</h2>
     <p>You are @ViewData["username"] from @ViewData["departname"]</p>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>Build with .NET Core @csharpversion</p>
 </div>
 
 

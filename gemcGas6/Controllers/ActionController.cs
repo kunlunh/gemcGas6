@@ -28,7 +28,7 @@ namespace gemcGas.Controllers
         }
 
         [HttpPost]
-        public IActionResult doLogin(useritem user)
+        public IActionResult doLogin2(useritem user)
         {
 
             if (user.username != null)
@@ -59,6 +59,50 @@ namespace gemcGas.Controllers
                     HttpContext.Session.SetInt32("authed", 1);
                     HttpContext.Session.SetString("username", userfind.username);
                     HttpContext.Session.SetString("departname", userfind.departname);
+                    var result = new commandMSG
+                    {
+                        message = "登录成功"
+                    };
+                    return Json(new { result });
+                }
+                else
+                {
+                    var result = new commandMSG
+                    {
+                        message = "登录失败"
+                    };
+                    return Json(new { result });
+                }
+
+
+            }
+            else
+            {
+                var result = new commandMSG
+                {
+                    message = "No Input"
+                };
+                return Json(new { result });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult doLogin(useritem user)
+        {
+
+            if (user.username != null)
+            {
+                var userfind = new useritem();
+                useritem usertest = new useritem();
+                usertest.username = "admin";
+                usertest.password = "admin123";
+                
+
+                if (usertest.password == user.password)
+                {
+                    HttpContext.Session.SetInt32("authed", 1);
+                    HttpContext.Session.SetString("username", usertest.username);
+                    //HttpContext.Session.SetString("departname", userfind.departname);
                     var result = new commandMSG
                     {
                         message = "登录成功"
