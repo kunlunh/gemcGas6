@@ -170,6 +170,25 @@ namespace gemcGas.Models
         public string? result_PM25 { get; set; }
         public string? result_SO2 { get; set; }
     }
+    public class davgdatarequest
+    {
+        public string date { get; set; }
+    }
+    public class davgdataresult
+    {
+        public string PositionName { get; set; }
+        public string Date { get; set; }
+        public string? result_CO { get; set; }
+        public string? result_NO2 { get; set; }
+        public string? result_O3 { get; set; }
+        public string? result_PM10 { get; set; }
+        public string? result_PM25 { get; set; }
+        public string? result_SO2 { get; set; }
+        public string? result_AQI { get; set; }
+        public string? result_Level { get; set; }
+        public string? PrimaryPollutant { get; set; }
+        public string? OverPollutant { get; set; }
+    }
 
 
     public class WeatherForecastdatarequest

@@ -430,6 +430,94 @@ namespace gemcGas.Controllers
             }
 
         }
+        public IActionResult get_davgdata(davgdatarequest request)
+        {
+            if (HttpContext.Session.GetInt32("authed") != 1)
+            {
+                return Redirect("/admin/login");
+            }
+            else
+            {
+                if (request.date != null)
+                {
+                    DateTime startt = DateTime.Now;
+                    string MySQLconnectURL = appoptions.MySQLconnectURL;
+                    string date = request.date; //The day given Such 20240220
+                    DateTime parsedDate;
+
+                    if (DateTime.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    {
+                        // Generate start time as "2024-02-20 01:00:00"
+                        List<davgdataresult> result_all = new List<davgdataresult>();
+
+                        using (var connection = new MySqlConnection(MySQLconnectURL))
+                        {
+                            connection.Open();
+                            string searchdata = parsedDate.ToString("yyyy-MM-dd");
+                            Console.WriteLine(searchdata);
+                            var command = connection.CreateCommand();
+                            command.CommandText = @"select Date,PositionName,SO2,PM2_5,PM10,O3_8h,NO2,CO,AQI,PrimaryPollutant,OverPollutant,level
+                                                    from my_station_day where date = @searchdata and PositionName like '%#%' order by PositionName asc limit 20";
+                            command.Parameters.AddWithValue("@searchdata", searchdata);
+                            using (var reader = command.ExecuteReader())
+                            {
+
+                                while (reader.Read())
+                                {
+                                    davgdataresult davgdata_result = new davgdataresult();
+                                    davgdata_result.PositionName = reader.GetString(1);
+                                    davgdata_result.Date = reader.GetDateTime(0).ToString("yyyy/MM/dd");
+                                    davgdata_result.result_SO2 = reader.IsDBNull(2) ? null : reader.GetFloat(2).ToString();
+                                    davgdata_result.result_PM25 = reader.IsDBNull(3) ? null : reader.GetFloat(3).ToString();
+                                    davgdata_result.result_PM10 = reader.IsDBNull(4) ? null : reader.GetFloat(4).ToString();
+                                    davgdata_result.result_O3 = reader.IsDBNull(5) ? null : reader.GetFloat(5).ToString();
+                                    davgdata_result.result_NO2 = reader.IsDBNull(6) ? null : reader.GetFloat(6).ToString();
+                                    davgdata_result.result_CO = reader.IsDBNull(7) ? null : reader.GetFloat(7).ToString("0.0");
+                                    davgdata_result.result_AQI = reader.IsDBNull(8) ? null : reader.GetInt32(8).ToString();
+                                    davgdata_result.PrimaryPollutant = reader.IsDBNull(9) ? null : reader.GetString(9);
+                                    davgdata_result.OverPollutant = reader.IsDBNull(10) ? null : reader.GetString(10);
+                                    davgdata_result.result_Level = reader.IsDBNull(11) ? null : reader.GetString(11);
+                                    result_all.Add(davgdata_result);
+                                }
+
+                            }
+
+                            connection.Close();
+
+                        }
+                        string jsonReuslt = JsonSerializer.Serialize(result_all);
+                        Console.WriteLine(jsonReuslt);
+                        DateTime endt = DateTime.Now;
+                        TimeSpan passt = endt - startt;
+                        Console.WriteLine($"{passt.Seconds}s+{passt.Milliseconds}ms");
+                        return Json(result_all);
+                    }
+                    else
+                    {
+                        // Handle the case where the date is not in the expected format
+                        Console.WriteLine("Invalid date format.");
+                        var result = new commandMSG
+                        {
+                            message = "Invalid date format."
+                        };
+                        return Json(new { result });
+                    }
+
+
+                }
+                else
+                {
+                    var result = new commandMSG
+                    {
+                        message = "No Input"
+                    };
+                    return Json(new { result });
+                }
+
+            }
+
+        }
+
         [HttpPost]
         public IActionResult get_hourdata(hourdatarequest request)
         {
