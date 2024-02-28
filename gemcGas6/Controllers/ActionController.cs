@@ -650,8 +650,12 @@ namespace gemcGas.Controllers
                     using (var connection = new NpgsqlConnection(PGSQLconnectURL))
                     {
                         connection.Open();
-                        using (var cmd = new NpgsqlCommand("select * from public.WeatherForcastfromLatest_VIEW", connection))
+                        using (var cmd = new NpgsqlCommand(@"SELECT area,ftime,mint,maxt,minrh2m,maxrh2m,rain,f12weather,f12windd,f12winds,l12weather,l12windd,l12winds,rtime    
+                            FROM public.weatherforcastfromcma 
+                            where CTIME = (SELECT DISTINCT ctime FROM public.weatherforcastfromcma LIMIT 1)
+                            and area = @site", connection))
                         {
+                            cmd.Parameters.Add(new NpgsqlParameter("@site", site));
                             using (var reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
@@ -673,7 +677,7 @@ namespace gemcGas.Controllers
                                         byforcast.L12WEATHER = reader.GetString(10);
                                         byforcast.L12WINDD = reader.GetString(11);
                                         byforcast.L12WINDS = reader.GetString(12);
-                                        byforcast.RTIME = reader.GetString(13);
+                                        byforcast.RTIME = reader.GetDateTime(13).ToString();
                                         result_all.Add(byforcast);
                                     }
 

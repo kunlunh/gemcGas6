@@ -219,8 +219,9 @@ namespace gemcGas.Controllers
             }
             else
             {
-                ViewData["Title"] = "预测预报";
-                return View();
+                //ViewData["Title"] = "预测预报";
+                //return View();
+                return Redirect("/admin/WeatherForecastDB");
             }
         }
 
