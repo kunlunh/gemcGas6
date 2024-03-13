@@ -652,7 +652,7 @@ namespace gemcGas.Controllers
                         connection.Open();
                         using (var cmd = new NpgsqlCommand(@"SELECT area,ftime,mint,maxt,minrh2m,maxrh2m,rain,f12weather,f12windd,f12winds,l12weather,l12windd,l12winds,rtime    
                             FROM public.weatherforcastfromcma 
-                            where CTIME = (SELECT DISTINCT ctime FROM public.weatherforcastfromcma LIMIT 1)
+                            where CTIME = (SELECT DISTINCT ctime FROM public.weatherforcastfromcma order by ctime DESC LIMIT 1)
                             and area = @site", connection))
                         {
                             cmd.Parameters.Add(new NpgsqlParameter("@site", site));
