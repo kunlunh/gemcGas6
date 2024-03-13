@@ -11,7 +11,6 @@ using gemcGas.Common;
 using System.Net;
 using System.Xml;
 using Microsoft.Extensions.Options;
-using Npgsql;
 using MySqlConnector;
 using System.Security.Policy;
 using static System.Net.Mime.MediaTypeNames;
@@ -645,17 +644,17 @@ namespace gemcGas.Controllers
                     List<WeatherForcastbyCMA> result_all = new List<WeatherForcastbyCMA>();
                     string jsontext = string.Empty;
                     List<WeatherForcastbyCMA> weatherForecast = new List<WeatherForcastbyCMA>();
-                    string PGSQLconnectURL = appoptions.PGSQLconnectURL;
+                    string WeatherSQLconnectURL = appoptions.WeatherMySQLconnectURL;
 
-                    using (var connection = new NpgsqlConnection(PGSQLconnectURL))
+                    using (var connection = new MySqlConnection(WeatherSQLconnectURL))
                     {
                         connection.Open();
-                        using (var cmd = new NpgsqlCommand(@"SELECT area,ftime,mint,maxt,minrh2m,maxrh2m,rain,f12weather,f12windd,f12winds,l12weather,l12windd,l12winds,rtime    
-                            FROM public.weatherforcastfromcma 
-                            where CTIME = (SELECT DISTINCT ctime FROM public.weatherforcastfromcma order by ctime DESC LIMIT 1)
+                        using (var cmd = new MySqlCommand(@"SELECT area,ftime,mint,maxt,minrh2m,maxrh2m,rain,f12weather,f12windd,f12winds,l12weather,l12windd,l12winds,rtime    
+                            FROM weatherforcastfromcma 
+                            where CTIME = (SELECT DISTINCT ctime FROM weatherforcastfromcma order by ctime DESC LIMIT 1)
                             and area = @site", connection))
                         {
-                            cmd.Parameters.Add(new NpgsqlParameter("@site", site));
+                            cmd.Parameters.AddWithValue("@site", site);
                             using (var reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())

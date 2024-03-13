@@ -12,5 +12,7 @@
         public string PGSQLconnectURL { get; set; } = string.Empty;
 
         public string MySQLconnectURL { get; set; } = string.Empty;
+
+        public string WeatherMySQLconnectURL { get; set; } = string.Empty;
     }
 }
